@@ -1,0 +1,36 @@
+server:
+  port: 9090
+spring:
+  application:
+    name: API-GATEWAY
+
+  cloud:
+    gateway:
+      routes:
+        - id : SERVICE-1
+          uri: lb://SERVICE-1
+          predicates:
+            - Path=/svc-1/api/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: SERVICE-1
+                fallbackuri: forward:/svc1FallBack
+
+        - id: SERVICE-2
+          uri: lb://SERVICE-2
+          predicates:
+            - Path=/svc-2/api/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: SERVICE-2
+                fallbackuri: forward:/svc2FallBack
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka}
